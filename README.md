@@ -1,2 +1,4 @@
 # CS-101
-This repo holds all my code for CS 101.
+
+## About
+This repository will hold most of the code I write during my Computer Science 101 class at the University of Alabama.
