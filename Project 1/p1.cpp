@@ -7,8 +7,6 @@
 #include <map>
 #include <vector>
 
-#define DEBUG false
-
 int main(int argc, char *argv[]) {
     // Open the cipher file
     std::ifstream cipherFile;
