@@ -186,3 +186,6 @@ Temporary Items
 # Ignore all local history of files
 .history
 .ionide
+
+# Project and Lab .txt files
+*.txt
