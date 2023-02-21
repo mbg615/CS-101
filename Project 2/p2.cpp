@@ -8,14 +8,10 @@
 #include <vector>
 #include <fstream>
 
-#define DEBUG false
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
     std::ifstream fileOne(argv[2]), fileTwo(argv[3]);
-    if(DEBUG && (!fileOne.is_open() || !fileTwo.is_open())) {
-        std::cout << "Error: Failed to open one of the input files" << std::endl;
-        return -1;
-    }
 
     switch(*argv[1]) {
         case 'i':
@@ -24,40 +20,20 @@ int main(int argc, char *argv[]) {
 
                 int dataValue;
                 while(fileOne >> dataValue) {
-                    if(DEBUG) std::cout << dataValue << "\n";
                     fileOneData.push_back(dataValue);
                 }
                 int fileOneDataSorted[fileOneData.size()];
                 std::transform(fileOneData.begin(), fileOneData.end(), fileOneDataSorted, [](const int &element){return element;});
 
-                if(DEBUG) std::cout << "\n";
-
                 while(fileTwo >> dataValue) {
-                    if(DEBUG) std::cout << dataValue << "\n";
                     fileTwoData.push_back(dataValue);
                 }
                 int fileTwoDataSorted[fileTwoData.size()];
                 std::transform(fileTwoData.begin(), fileTwoData.end(), fileTwoDataSorted, [](const int &element){return element;});
 
-                if(DEBUG) std::cout << "\n";
-
                 void MergeSort(int numbers[], int i, int k);
                 MergeSort(fileOneDataSorted, 0,  fileOneData.size() - 1);
                 MergeSort(fileTwoDataSorted, 0, fileTwoData.size() - 1);
-
-                if(DEBUG) {
-                    for(int &element: fileOneDataSorted) {
-                        std::cout << element << ", ";
-                    }
-                    std::cout << "\n";
-                }
-
-                if(DEBUG) {
-                    for(int &element: fileTwoDataSorted) {
-                        std::cout << element << ", ";
-                    }
-                    std::cout << "\n";
-                }
 
                 int previous = fileOneDataSorted[0] - 100;
                 for(int &elementOne: fileOneDataSorted) {
