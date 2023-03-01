@@ -33,7 +33,15 @@ int main(int argc, char *argv[]) {
 
                 void MergeSort(int numbers[], int i, int k);
                 MergeSort(fileOneDataSorted, 0,  fileOneData.size() - 1);
+                for(int &element: fileOneDataSorted) {
+                    std::cout << element << "\n";
+                }
+                std::cout << "\n";
                 MergeSort(fileTwoDataSorted, 0, fileTwoData.size() - 1);
+                for(int &element: fileTwoDataSorted) {
+                    std::cout << element << "\n";
+                }
+                std::cout << "\n";
 
                 int previous = fileOneDataSorted[0] - 100;
                 for(int &elementOne: fileOneDataSorted) {
@@ -56,17 +64,23 @@ int main(int argc, char *argv[]) {
                 while(fileOne >> dataValue) {
                     fileOneData.push_back(dataValue);
                 }
-                //std::string fileOneDataSorted[fileOneData.size()];
-                //std::transform(fileOneData.begin(), fileOneData.end(), fileOneDataSorted, [](const std::string &element){return element;});
+                std::string fileOneDataSorted[fileOneData.size()];
+                std::transform(fileOneData.begin(), fileOneData.end(), fileOneDataSorted, [](const std::string &element){return element;});
 
                 while(fileTwo >> dataValue) {
                     fileTwoData.push_back(dataValue);
                 }
-                //std::string fileTwoDataSorted[fileTwoData.size()];
-                //std::transform(fileTwoData.begin(), fileTwoData.end(), fileTwoDataSorted, [](const std::string &element){return element;});
+                std::string fileTwoDataSorted[fileTwoData.size()];
+                std::transform(fileTwoData.begin(), fileTwoData.end(), fileTwoDataSorted, [](const std::string &element){return element;});
 
-                std::sort(fileOneData.begin(), fileOneData.end());
-                std::sort(fileTwoData.begin(), fileTwoData.end());
+
+                void Quicksort(std::string numbers[], int i, int k);
+                Quicksort(fileOneDataSorted, 0, fileOneData.size() - 1);
+                Quicksort(fileTwoDataSorted, 0, fileTwoData.size() - 1);
+                //std::sort(fileOneData.begin(), fileOneData.end());
+                //std::sort(fileTwoData.begin(), fileTwoData.end());
+
+
 
                 if(DEBUG) {
                     for(std::string &element: fileOneData) {
@@ -166,17 +180,17 @@ void MergeSort(int numbers[], int i, int k) {
 }
 
 // zyBooks quicksort merge sort
-int Partition(int numbers[], int i, int k) {
+int Partition(std::string strings[], int i, int k) {
     int l;
     int h;
     int midpoint;
-    int pivot;
-    int temp;
+    std::string pivot;
+    std::string temp;
     bool done;
 
     /* Pick middle element as pivot */
     midpoint = i + (k - i) / 2;
-    pivot = numbers[midpoint];
+    pivot = strings[midpoint];
 
     done = false;
     l = i;
@@ -184,27 +198,27 @@ int Partition(int numbers[], int i, int k) {
 
     while (!done) {
 
-        /* Increment l while numbers[l] < pivot */
-        while (numbers[l] < pivot) {
+        /* Increment l while strings[l] < pivot */
+        while (strings[l] < pivot) {
             ++l;
         }
 
-        /* Decrement h while pivot < numbers[h] */
-        while (pivot < numbers[h]) {
+        /* Decrement h while pivot < strings[h] */
+        while (pivot < strings[h]) {
             --h;
         }
 
         /* If there are zero or one elements remaining,
-         all numbers are partitioned. Return h */
+         all strings are partitioned. Return h */
         if (l >= h) {
             done = true;
         }
         else {
-            /* Swap numbers[l] and numbers[h],
+            /* Swap strings[l] and strings[h],
              update l and h */
-            temp = numbers[l];
-            numbers[l] = numbers[h];
-            numbers[h] = temp;
+            temp = strings[l];
+            strings[l] = strings[h];
+            strings[h] = temp;
 
             ++l;
             --h;
@@ -214,7 +228,7 @@ int Partition(int numbers[], int i, int k) {
     return h;
 }
 
-void Quicksort(int numbers[], int i, int k) {
+void Quicksort(std::string strings[], int i, int k) {
     int j;
 
     /* Base case: If there are 1 or zero elements to sort,
@@ -225,10 +239,10 @@ void Quicksort(int numbers[], int i, int k) {
 
     /* Partition the data within the array. Value j returned
      from partitioning is location of last element in low partition. */
-    j = Partition(numbers, i, k);
+    j = Partition(strings, i, k);
 
     /* Recursively sort low partition (i to j) and
      high partition (j + 1 to k) */
-    Quicksort(numbers, i, j);
-    Quicksort(numbers, j + 1, k);
+    Quicksort(strings, i, j);
+    Quicksort(strings, j + 1, k);
 }
