@@ -100,7 +100,6 @@ class MyDynamicArray {
 
         MyDynamicArray(const MyDynamicArray & src) {
             /* Your code goes here */
-            z
             std::cout << "In the copy constructor\n";
             size = src.size;
             capacity = src.capacity;
