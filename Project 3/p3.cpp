@@ -3,6 +3,8 @@
 
 #include "p3.h"
 
+#define DEBUG true
+
 using namespace std;
 
 Person::Person() {
@@ -71,6 +73,8 @@ int PersonList::getWeight(string first, string last) {
 }
 
 bool PersonList::add(std::string first, std::string last, int height, int weight) {
+    // Doesn't work for all cases: Final Grade: 88/100
+
     if(this->exists(first, last)) {
         return false;
     }
@@ -96,6 +100,14 @@ bool PersonList::add(std::string first, std::string last, int height, int weight
     } else if(newPerson->height < this->headHeightList->height && this->headHeightList->nextHeight == nullptr) {
         this->headHeightList->nextHeight = newPerson;
         newPerson->nextHeight = nullptr;
+    } else if(newPerson->height == this->headHeightList->height) {
+        if(newPerson->weight == this->headHeightList->weight || newPerson->weight > this->headHeightList->weight) {
+            newPerson->nextHeight = this->headHeightList->nextHeight;
+            this->headHeightList->nextHeight = newPerson;
+        } else if(newPerson->weight < this->headHeightList->weight) {
+            newPerson->nextHeight = this->headHeightList;
+            this->headHeightList = newPerson;
+        }
     } else {
         Person *prevNode = this->headHeightList;
         for(Person *curNode = this->headHeightList->nextHeight; curNode != nullptr; curNode = curNode->nextHeight) {
@@ -113,6 +125,7 @@ bool PersonList::add(std::string first, std::string last, int height, int weight
                 prevNode = curNode;
                 break;
             } else if(newPerson->height == curNode->height) {
+                std::cout << "\t\t\tHEY_RIGHT_HERE!";
                 if(newPerson->weight == curNode->weight || newPerson->weight > curNode->weight) {
                     if(curNode->nextHeight == nullptr) {
                         curNode->nextHeight = newPerson;
@@ -163,6 +176,14 @@ bool PersonList::add(std::string first, std::string last, int height, int weight
     } else if(newPerson->weight > this->headWeightList->weight && this->headWeightList->nextWeight == nullptr) {
         this->headWeightList->nextWeight = newPerson;
         newPerson->nextWeight = nullptr;
+    } else if(newPerson->weight == this->headWeightList->weight) {
+        if(newPerson->height == this->headWeightList->height || newPerson->height < this->headWeightList->height) {
+            newPerson->nextWeight = this->headWeightList->nextWeight;
+            this->headWeightList->nextWeight = newPerson;
+        } else if(newPerson->height > this->headWeightList->height) {
+            newPerson->nextWeight = this->headWeightList;
+            this->headWeightList = newPerson;
+        }
     } else {
         Person *prevNode = this->headWeightList;
         for(Person *curNode = this->headWeightList->nextWeight; curNode != nullptr; curNode = curNode->nextWeight) {
@@ -307,32 +328,43 @@ bool PersonList::updateWeight(string first, string last, int weight) {
 }
 
 void PersonList::deepCopy(const PersonList &src) {
-    if(src.headHeightList == nullptr) {
+    if (src.headHeightList == nullptr || src.headWeightList == nullptr) {
         return;
     }
 
-    headHeightList = new Person(src.headHeightList->first, src.headWeightList->last, src.headHeightList->height, src.headHeightList->weight);
-    Person *heightBack = headHeightList;
+    size = src.size;
 
-    for(Person *ptr = src.headHeightList->nextHeight; ptr != nullptr; ptr = ptr->nextHeight) {
+    Person *ptr = src.headHeightList;
+    headHeightList = new Person(ptr->first, ptr->last, ptr->height, ptr->weight);
+    Person *backOfList = headHeightList;
+    for (ptr = src.headHeightList->nextHeight; ptr != nullptr; ptr = ptr->nextHeight) {
         Person *newPerson = new Person(ptr->first, ptr->last, ptr->height, ptr->weight);
-        heightBack->nextHeight = newPerson;
-        heightBack = newPerson;
+        backOfList->nextHeight = newPerson;
+        backOfList = newPerson;
+        newPerson->nextHeight = nullptr;
     }
 
-    headWeightList = new Person(src.headWeightList->first, src.headWeightList->last, src.headWeightList->height, src.headWeightList->weight);
-    Person *weightBack = headWeightList;
-
-    for(Person *ptr = src.headWeightList->nextWeight; ptr != nullptr; ptr = ptr->nextWeight) {
-        Person *newPerson = new Person(ptr->first, ptr->last, ptr->height, ptr->weight);
-        weightBack->nextWeight = newPerson;
-        weightBack = newPerson;
+    ptr = src.headWeightList;
+    for (Person *curHeight = headHeightList; curHeight != nullptr; curHeight = curHeight->nextHeight) {
+        if (curHeight->first == ptr->first && curHeight->last == ptr->last) {
+            headWeightList = curHeight;
+        }
+    }
+    backOfList = headWeightList;
+    for (ptr = src.headWeightList->nextWeight; ptr != nullptr; ptr = ptr->nextWeight) {
+        for (Person *curHeight = headHeightList; curHeight != nullptr; curHeight = curHeight->nextHeight) {
+            if (curHeight->first == ptr->first && curHeight->last == ptr->last) {
+                backOfList->nextWeight = curHeight;
+                backOfList = curHeight;
+                curHeight->nextWeight = nullptr;
+            }
+        }
     }
 }
 
 void PersonList::clear() {
     while(headHeightList != nullptr) {
-        remove(headHeightList->first, headWeightList->last);
+        remove(headHeightList->first, headHeightList->last);
     }
 }
 
