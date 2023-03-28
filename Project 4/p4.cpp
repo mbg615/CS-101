@@ -230,6 +230,9 @@ std::vector<std::string> findWords(std::string line) {
             validWord = false;
         }
     }
+    if(!word.empty()) {
+        words.push_back(word);
+    }
     return words;
 }
 
@@ -265,13 +268,13 @@ int main(int argc, char *argv[]) {
 
     std::cout << "The number of words found in the file was " << wordCounter << "\n";
     std::cout << "The number of unique words found in the file was " << myHashTable.mapSize() << "\n";
-    std::cout << "The number of collisions was " << myHashTable.totalCollisions << "\n\n";
+    std::cout << "The number of collisions was " << myHashTable.totalCollisions << "\n";
 
     std::string query;
     while(queryFile >> query) {
+        std::cout << "\n";
         myHashTable.searchMap(query);
         myHashTable.search(query);
-        std::cout << "\n";
     }
 
     return 0;
