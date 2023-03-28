@@ -46,19 +46,29 @@ int main(int argc, char *argv[]) {
     HashTable myHashTable(hashTableSize, probingMethod, aValue);
 
     std::string curLine;
-    int lineCounter = 0;
+    int lineCounter = 0, wordCounter = 0;
     std::vector<std::string> wordsInLine;
     //wordsInLine.clear();
     while(std::getline(inputFile, curLine)) {
         lineCounter++;
         wordsInLine = findWords(curLine);
+        wordCounter += wordsInLine.size();
         for(std::string &element: wordsInLine) {
             myHashTable.insert(element);
             myHashTable.insertToMap(element, lineCounter);
         }
     }
 
-    myHashTable.print();
+    std::cout << "The number of words found in the file was " << wordCounter << "\n";
+    std::cout << "The number of unique words found in the file was " << myHashTable.mapSize() << "\n";
+    std::cout << "The number of collisions was " << myHashTable.totalCollisions << "\n";
+
+    std::string query;
+    while(queryFile >> query) {
+        std::cout << "\n";
+        myHashTable.searchMap(query);
+        myHashTable.search(query);
+    }
 
     return 0;
 }
