@@ -26,6 +26,9 @@ std::vector<std::string> findWords(std::string line) {
             validWord = false;
         }
     }
+    if(!word.empty()) {
+        words.push_back(word);
+    }
     return words;
 }
 
