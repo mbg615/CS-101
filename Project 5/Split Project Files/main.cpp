@@ -27,18 +27,28 @@ int main([[maybe_unused]] int argc, char** argv) {
     }
     levelOrderTraversal.close();
 
+    int inOrder[inOrderVector.size()];
+    for(int i = 0; i < static_cast<int>(inOrderVector.size()); i++) {
+        inOrder[i] = inOrderVector.at(i);
+    }
+
+    int levelOrder[levelOrderVector.size()];
+    for(int i = 0; i < static_cast<int>(levelOrderVector.size()); i++) {
+        levelOrder[i] = levelOrderVector.at(i);
+    }
+
     auto myHuffmanTree = new HuffmanTree;
 
-    myHuffmanTree->buildHuffmanTree(inOrderVector, levelOrderVector);
+    myHuffmanTree->buildHuffmanTree(inOrder, levelOrder, 0, static_cast<int>(inOrderVector.size()), static_cast<int>(levelOrderVector.size()));
 
-    myHuffmanTree->inOrderTraversal();
-
-    std::string stringPath;
-    stringPath.clear();
-    while(std::getline(encodedText, stringPath)) {
-        myHuffmanTree->decodeText(stringPath);
-        stringPath.clear();
+    char shiftDir;
+    std::string encodedPath;
+    while(encodedText >> shiftDir) {
+        encodedPath.push_back(shiftDir);
     }
+    encodedText.close();
+
+    myHuffmanTree->decodeText(encodedPath);
 
     return 0;
 }

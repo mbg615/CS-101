@@ -22,11 +22,10 @@ class HuffmanTree {
 public:
     HuffmanNode *treeRoot;
 
-    void buildHuffmanTree(std::vector<int> const &inorder, std::vector<int> const &level);
-    void createCodes();
-
+    void buildHuffmanTree(int* inOrder, int* levelOrder, int inLeft, int inRight, int levelSize);
     void inOrderTraversal() const;
     void decodeText(std::string &encodedText) const;
+
 };
 
 #endif //CS_101_P5_H

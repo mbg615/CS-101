@@ -1,8 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
-#include <unordered_map>
-#include <fstream>
 
 class HuffmanNode {
 public:
@@ -16,13 +15,11 @@ public:
 class HuffmanTree {
 public:
     HuffmanNode *treeRoot;
-    std::unordered_map<std::string, char> encodedLetterPaths;
 
-    void buildHuffmanTree(std::vector<int> const &inorder, std::vector<int> const &level);
-    void createCodes();
-
+    void buildHuffmanTree(int* inOrder, int* levelOrder, int inLeft, int inRight, int levelSize);
     void inOrderTraversal() const;
     void decodeText(std::string &encodedText) const;
+
 };
 
 HuffmanNode::HuffmanNode(int key) {
@@ -37,54 +34,16 @@ HuffmanNode::HuffmanNode(int key) {
     this->right = nullptr;
 }
 
-HuffmanNode* buildTree(std::vector<int> const &inorder, int start, int end, std::unordered_map<int, int> map) {
-    if (start > end) {
-        return nullptr;
-    }
-
-    // find the root node index in sequence `inorder[]` to determine the
-    // left and right subtree boundary
-    int index = start;
-    for (int j = start + 1; j <= end; j++) {
-        // Find node with minimum index in level order traversal.
-        // That would be the root node of the sequence inorder[start, end]
-        if (map[inorder[j]] < map[inorder[index]]) {
-            index = j;
-        }
-    }
-
-    auto* root = new HuffmanNode(inorder[index]);
-
-    root->left = buildTree(inorder, start, index - 1, map);
-
-    root->right = buildTree(inorder, index + 1, end, map);
-
-    return root;
-}
-
-HuffmanNode* buildTree(std::vector<int> const &inorder, std::vector<int> const &level) {
-    int n = (int)inorder.size();
-
-    // create a map to efficiently find the index of an element in a
-    // level order sequence
-    std::unordered_map<int, int> map;
-    for (int i = 0; i < n; i++) {
-        map[level[i]] = i;
-    }
-
-    // construct the tree and return it
-    return buildTree(inorder, 0, n - 1, map);
-}
-
-void HuffmanTree::buildHuffmanTree(std::vector<int> const &inorder, std::vector<int> const &level) {
-    this->treeRoot = ::buildTree(inorder, level);
-}
-
 void inOrderTraversal(HuffmanNode* root) {
     if (root == nullptr) return;
 
     inOrderTraversal(root->left);
-    std::cout << root->key << ":" << root->letter << " ";
+    std::cout << root->key << " ";
+//    if(root->letter == '\n') {
+//        std::cout << root->key << ":" << "\\n ";
+//    } else {
+//        std::cout << root->key << ":" << root->letter << " ";
+//    }
     inOrderTraversal(root->right);
 }
 
@@ -93,34 +52,17 @@ void HuffmanTree::inOrderTraversal() const {
     ::inOrderTraversal(this->treeRoot);
 }
 
-void createCodes(HuffmanNode* root, std::string encodedPath, std::unordered_map<std::string, char> &letterPaths){
-    if(root == nullptr){
-        return;
+int searchForIndex(const int* inOrder, int inLeft, int inRight, int value) {
+    for(int i = inLeft; i <= inRight; i++) {
+        if(inOrder[i] == value) {
+            return i;
+        }
     }
-
-    if(root->letter != '$'){
-        letterPaths[encodedPath] = root->letter;
-    }
-
-    createCodes(root->left, encodedPath + "0", letterPaths);
-    createCodes(root->right, encodedPath + "1", letterPaths);
-}
-
-void HuffmanTree::createCodes() {
-    std::string encodedPath;
-    ::createCodes(treeRoot, encodedPath, encodedLetterPaths);
-
-    std::cout << "\n";
-    for(auto &element: encodedLetterPaths) {
-        std::cout << element.first << ": " << element.second << "\n";
-    }
-
-
+    return -1;
 }
 
 void HuffmanTree::decodeText(std::string &encodedText) const {
     HuffmanNode* currentTreeNode = treeRoot;
-    char testVal;
     for(char i : encodedText) {
         if(currentTreeNode->left == nullptr && currentTreeNode->right == nullptr) {
             std::cout << currentTreeNode->letter << std::flush;
@@ -136,7 +78,48 @@ void HuffmanTree::decodeText(std::string &encodedText) const {
     std::cout << currentTreeNode->letter;
 }
 
-int main(int argc, char** argv) {
+HuffmanNode* buildHuffmanTree(int* inOrder, int* levelOrder, int inLeft, int inRight, int levelSize) {
+    if(inRight < inLeft || levelSize <= 0) {
+        return nullptr;
+    }
+
+    auto* root = new HuffmanNode(levelOrder[0]);
+
+    int inOrderIndex = searchForIndex(inOrder, inLeft, inRight, levelOrder[0]);
+
+    int rightSize = 0, leftSize = 0;
+    std::vector<int> leftSide, rightSide;
+    for(int i = 1; i < levelSize; i++) {
+        if(searchForIndex(inOrder, 0, inOrderIndex - 1, levelOrder[i]) != -1) {
+            leftSide.push_back(levelOrder[i]);
+            leftSize++;
+        } else {
+            rightSide.push_back(levelOrder[i]);
+            rightSize++;
+        }
+    }
+
+    int left[leftSize], right[rightSize];
+    for(int i = 0; i < leftSize; i++) {
+        left[i] = leftSide.at(i);
+    }
+
+    for(int i = 0; i < rightSize; i++) {
+        right[i] = rightSide.at(i);
+    }
+
+    root->left = buildHuffmanTree(inOrder, left, inLeft, inOrderIndex - 1, leftSize);
+    root->right = buildHuffmanTree(inOrder, right, inOrderIndex + 1, inRight, rightSize);
+
+    return root;
+
+}
+
+void HuffmanTree::buildHuffmanTree(int* inOrder, int* levelOrder, int inLeft, int inRight, int levelSize) {
+    this->treeRoot = ::buildHuffmanTree(inOrder, levelOrder, inLeft, inRight, levelSize);
+}
+
+int main([[maybe_unused]] int argc, char** argv) {
     std::ifstream inOrderTransversal(argv[1]);
     std::ifstream levelOrderTraversal(argv[2]);
     std::ifstream encodedText(argv[3]);
@@ -154,18 +137,28 @@ int main(int argc, char** argv) {
     }
     levelOrderTraversal.close();
 
+    int inOrder[inOrderVector.size()];
+    for(int i = 0; i < static_cast<int>(inOrderVector.size()); i++) {
+        inOrder[i] = inOrderVector.at(i);
+    }
+
+    int levelOrder[levelOrderVector.size()];
+    for(int i = 0; i < static_cast<int>(levelOrderVector.size()); i++) {
+        levelOrder[i] = levelOrderVector.at(i);
+    }
+
     auto myHuffmanTree = new HuffmanTree;
 
-    myHuffmanTree->buildHuffmanTree(inOrderVector, levelOrderVector);
+    myHuffmanTree->buildHuffmanTree(inOrder, levelOrder, 0, static_cast<int>(inOrderVector.size()), static_cast<int>(levelOrderVector.size()));
 
-    //myHuffmanTree->inOrderTraversal();
-
-    std::string stringPath;
-    stringPath.clear();
-    while(std::getline(encodedText, stringPath)) {
-        myHuffmanTree->decodeText(stringPath);
-        stringPath.clear();
+    char shiftDir;
+    std::string encodedPath;
+    while(encodedText >> shiftDir) {
+        encodedPath.push_back(shiftDir);
     }
+    encodedText.close();
+
+    myHuffmanTree->decodeText(encodedPath);
 
     return 0;
 }
