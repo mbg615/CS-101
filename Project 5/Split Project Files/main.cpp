@@ -2,15 +2,14 @@
 // Created by Maddox Guthrie on 4/6/23.
 //
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <unordered_map>
+#include <string>
 
 #include "p5.h"
 
-// TODO: https://www.techiedelight.com/construct-binary-tree-from-inorder-level-order-traversals/
-
-int main(int argc, char** argv) {
+int main([[maybe_unused]] int argc, char** argv) {
     std::ifstream inOrderTransversal(argv[1]);
     std::ifstream levelOrderTraversal(argv[2]);
     std::ifstream encodedText(argv[3]);
@@ -28,13 +27,18 @@ int main(int argc, char** argv) {
     }
     levelOrderTraversal.close();
 
-    HuffmanTree* myHuffmanTree = new HuffmanTree;
+    auto myHuffmanTree = new HuffmanTree;
 
     myHuffmanTree->buildHuffmanTree(inOrderVector, levelOrderVector);
 
     myHuffmanTree->inOrderTraversal();
 
-    myHuffmanTree->createCodes();
+    std::string stringPath;
+    stringPath.clear();
+    while(std::getline(encodedText, stringPath)) {
+        myHuffmanTree->decodeText(stringPath);
+        stringPath.clear();
+    }
 
     return 0;
 }

@@ -1,19 +1,37 @@
 #include <iostream>
-#include <unordered_map>
 #include <vector>
-#include "queue"
+#include <string>
+#include <unordered_map>
+#include <fstream>
 
-#include "p5.h"
+class HuffmanNode {
+public:
+    int key;
+    char letter;
+    HuffmanNode *left, *right;
+
+    explicit HuffmanNode(int key);
+};
+
+class HuffmanTree {
+public:
+    HuffmanNode *treeRoot;
+    std::unordered_map<std::string, char> encodedLetterPaths;
+
+    void buildHuffmanTree(std::vector<int> const &inorder, std::vector<int> const &level);
+    void createCodes();
+
+    void inOrderTraversal() const;
+    void decodeText(std::string &encodedText) const;
+};
 
 HuffmanNode::HuffmanNode(int key) {
     this->key = key;
     if(key < 128) {
         this->letter = static_cast<char>(key);
     } else {
-        this->letter = '\0';
+        this->letter = '#';
     }
-
-    this->huffmanEncoding.clear();
 
     this->left = nullptr;
     this->right = nullptr;
@@ -35,7 +53,7 @@ HuffmanNode* buildTree(std::vector<int> const &inorder, int start, int end, std:
         }
     }
 
-    HuffmanNode* root = new HuffmanNode(inorder[index]);
+    auto* root = new HuffmanNode(inorder[index]);
 
     root->left = buildTree(inorder, start, index - 1, map);
 
@@ -45,7 +63,7 @@ HuffmanNode* buildTree(std::vector<int> const &inorder, int start, int end, std:
 }
 
 HuffmanNode* buildTree(std::vector<int> const &inorder, std::vector<int> const &level) {
-    int n = inorder.size();
+    int n = (int)inorder.size();
 
     // create a map to efficiently find the index of an element in a
     // level order sequence
@@ -70,23 +88,18 @@ void inOrderTraversal(HuffmanNode* root) {
     inOrderTraversal(root->right);
 }
 
-void HuffmanTree::inOrderTraversal() {
+void HuffmanTree::inOrderTraversal() const {
     std::cout << "Inorder traversal of the constructed tree is: ";
     ::inOrderTraversal(this->treeRoot);
 }
 
-bool isLeaf(HuffmanNode* node) {
-    if(node->left == nullptr && node->right == nullptr) return true;
-    return false;
-}
-
-void createCodes(HuffmanNode* root, std::string encodedPath, std::unordered_map<char, std::string> &letterPaths){
+void createCodes(HuffmanNode* root, std::string encodedPath, std::unordered_map<std::string, char> &letterPaths){
     if(root == nullptr){
         return;
     }
 
-    if(root->letter != '\0'){
-        letterPaths[root->letter] = encodedPath;
+    if(root->letter != '$'){
+        letterPaths[encodedPath] = root->letter;
     }
 
     createCodes(root->left, encodedPath + "0", letterPaths);
@@ -103,4 +116,56 @@ void HuffmanTree::createCodes() {
     }
 
 
+}
+
+void HuffmanTree::decodeText(std::string &encodedText) const {
+    HuffmanNode* currentTreeNode = treeRoot;
+    char testVal;
+    for(char i : encodedText) {
+        if(currentTreeNode->left == nullptr && currentTreeNode->right == nullptr) {
+            std::cout << currentTreeNode->letter << std::flush;
+            currentTreeNode = treeRoot;
+        }
+
+        if(i == '0') {
+            currentTreeNode = currentTreeNode->left;
+        } else if(i == '1') {
+            currentTreeNode = currentTreeNode->right;
+        }
+    }
+    std::cout << currentTreeNode->letter;
+}
+
+int main(int argc, char** argv) {
+    std::ifstream inOrderTransversal(argv[1]);
+    std::ifstream levelOrderTraversal(argv[2]);
+    std::ifstream encodedText(argv[3]);
+
+    std::vector<int> inOrderVector, levelOrderVector;
+
+    int nodeValue;
+    while (inOrderTransversal >> nodeValue) {
+        inOrderVector.push_back(nodeValue);
+    }
+    inOrderTransversal.close();
+
+    while (levelOrderTraversal >> nodeValue) {
+        levelOrderVector.push_back(nodeValue);
+    }
+    levelOrderTraversal.close();
+
+    auto myHuffmanTree = new HuffmanTree;
+
+    myHuffmanTree->buildHuffmanTree(inOrderVector, levelOrderVector);
+
+    //myHuffmanTree->inOrderTraversal();
+
+    std::string stringPath;
+    stringPath.clear();
+    while(std::getline(encodedText, stringPath)) {
+        myHuffmanTree->decodeText(stringPath);
+        stringPath.clear();
+    }
+
+    return 0;
 }

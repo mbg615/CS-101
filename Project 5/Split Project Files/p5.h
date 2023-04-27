@@ -5,7 +5,6 @@
 #ifndef CS_101_P5_H
 #define CS_101_P5_H
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -14,7 +13,6 @@ class HuffmanNode {
 public:
     int key;
     char letter;
-    std::string huffmanEncoding;
     HuffmanNode *left, *right;
 
     explicit HuffmanNode(int key);
@@ -23,11 +21,12 @@ public:
 class HuffmanTree {
 public:
     HuffmanNode *treeRoot;
-    std::unordered_map<char, std::string> encodedLetterPaths;
 
     void buildHuffmanTree(std::vector<int> const &inorder, std::vector<int> const &level);
-    void inOrderTraversal();
     void createCodes();
+
+    void inOrderTraversal() const;
+    void decodeText(std::string &encodedText) const;
 };
 
 #endif //CS_101_P5_H
